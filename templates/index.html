@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Summarizer</title>
+  <style>
+    :root {
+      --primary: #fff; 
+      --primary-dark: #e6e6e6; 
+      --background: #202020fa; 
+      --card-bg: #1f1f1f; 
+      --text: #fff; 
+      --text-secondary: #aaa; 
+      --border: #333; 
+      --shadow: 0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.2);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+
+    .refresh-btn {
+      background-color: var(--primary);
+      color: var(--background); /* black text on white button */
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 1rem auto;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+    }
+
+    .refresh-btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+    }
+
+    .refresh-btn:active {
+      transform: translateY(0);
+    }
+
+    .email-list {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .email-card {
+      background-color: var(--card-bg);
+      border-radius: 0.75rem;
+      padding: 1.75rem;
+      box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.2), 0 2px 4px -1px rgba(255, 255, 255, 0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      flex: 1 1 300px;
+    }
+
+    .email-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+    }
+
+    .email-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+      border-color: var(--primary-dark);
+    }
+
+    .sender {
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .subject {
+      font-weight: 500;
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+
+    .summary {
+      line-height: 1.7;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .no-emails {
+      text-align: center;
+      padding: 3rem;
+      background-color: var(--card-bg);
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.2), 0 2px 4px -1px rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+    }
+
+    .error-message {
+      color: #fff;
+      text-align: center;
+      padding: 1rem;
+      background-color: #222;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+      border: 1px solid #555;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+
+      .email-card {
+        padding: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Email Summarizer</h1>
+      <p class="subtitle">AI-powered summaries of your unread emails</p>
+    </header>
+
+    <!-- Refresh button simply reloads the page -->
+    <form method="get" action="/">
+      <button type="submit" class="refresh-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+          <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+        </svg>
+        Refresh Emails
+      </button>
+    </form>
+
+    <!-- Display error message if any -->
+    {% if error %}
+      <div class="error-message">{{ error }}</div>
+    {% endif %}
+
+    <!-- Show a no-emails message if there are none -->
+    {% if message %}
+      <div class="no-emails">
+        <h2>{{ message }}</h2>
+        <p>Your inbox is all caught up!</p>
+      </div>
+    {% elif summarized_emails %}
+      <!-- Otherwise, display the list of summarized emails -->
+      <div class="email-list">
+        {% for email in summarized_emails %}
+          <div class="email-card">
+            <div class="sender">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/>
+              </svg>
+              {{ email.sender }}
+            </div>
+            <div class="subject">{{ email.subject }}</div>
+            <div class="summary">{{ email.summary }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>

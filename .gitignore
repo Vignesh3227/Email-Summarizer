@@ -1,0 +1,7 @@
+/.vs
+/.vscode
+/client_secret.json
+/gmail_summazier
+/token files
+/token_gmail_v1.json
+/__pycache__
